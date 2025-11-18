@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CSSHL U17 Prep Rankings Calculator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -131,6 +133,17 @@
         
         .btn-sample:hover {
             background: #229954;
+        }
+        
+        .btn-pdf {
+            background: #e74c3c;
+            color: white;
+            padding: 12px 20px;
+            font-weight: 600;
+        }
+        
+        .btn-pdf:hover {
+            background: #c0392b;
         }
         
         .results-section {
@@ -319,6 +332,7 @@
             
             <div class="button-group">
                 <button class="btn-calculate" onclick="calculateRankings()">Calculate Rankings</button>
+                <button class="btn-pdf" onclick="downloadPDF()" id="pdfButton" style="display: none;">Download PDF</button>
                 <button class="btn-sample" onclick="loadSampleData()">Load Sample Data</button>
                 <button class="btn-clear" onclick="clearData()">Clear</button>
             </div>
@@ -653,6 +667,109 @@
                 });
         }
         
+        let currentRankingsData = null; // Store the latest rankings
+        
+        function downloadPDF() {
+            if (!currentRankingsData) {
+                alert('Please calculate rankings first!');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Title
+            doc.setFontSize(18);
+            doc.setFont(undefined, 'bold');
+            doc.text('CSSHL U17 Prep Rankings', 14, 20);
+            
+            // Date
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            const today = new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            doc.text(`Generated: ${today}`, 14, 28);
+            
+            // Statistics
+            doc.setFontSize(10);
+            doc.text(`Total Games: ${currentRankingsData.stats.totalGames}`, 14, 35);
+            doc.text(`Total Teams: ${currentRankingsData.stats.totalTeams}`, 14, 40);
+            doc.text(`Iterations to Converge: ${currentRankingsData.stats.iterations}`, 14, 45);
+            
+            // Rankings Table
+            const tableData = currentRankingsData.results.map((team, index) => [
+                index + 1,
+                team.name,
+                team.rating.toFixed(2),
+                team.sched.toFixed(2),
+                team.agd.toFixed(2),
+                team.wins,
+                team.losses,
+                team.otLosses,
+                team.gf,
+                team.ga
+            ]);
+            
+            doc.autoTable({
+                startY: 52,
+                head: [['Rank', 'Team', 'Rating', 'Sched', 'AGD', 'W', 'L', 'OTL', 'GF', 'GA']],
+                body: tableData,
+                theme: 'striped',
+                headStyles: { 
+                    fillColor: [52, 152, 219],
+                    fontStyle: 'bold',
+                    fontSize: 9
+                },
+                bodyStyles: {
+                    fontSize: 8
+                },
+                columnStyles: {
+                    0: { cellWidth: 12, halign: 'center' },
+                    1: { cellWidth: 60 },
+                    2: { cellWidth: 18, halign: 'right' },
+                    3: { cellWidth: 18, halign: 'right' },
+                    4: { cellWidth: 16, halign: 'right' },
+                    5: { cellWidth: 10, halign: 'center' },
+                    6: { cellWidth: 10, halign: 'center' },
+                    7: { cellWidth: 12, halign: 'center' },
+                    8: { cellWidth: 12, halign: 'center' },
+                    9: { cellWidth: 12, halign: 'center' }
+                },
+                didDrawPage: function(data) {
+                    // Footer
+                    doc.setFontSize(8);
+                    doc.setTextColor(128);
+                    const pageCount = doc.internal.getNumberOfPages();
+                    const pageHeight = doc.internal.pageSize.height;
+                    doc.text(
+                        'CSSHL U17 Prep Rankings Calculator',
+                        14,
+                        pageHeight - 10
+                    );
+                    doc.text(
+                        `Page ${data.pageNumber} of ${pageCount}`,
+                        doc.internal.pageSize.width - 30,
+                        pageHeight - 10
+                    );
+                }
+            });
+            
+            // Add explanation at the bottom
+            const finalY = doc.lastAutoTable.finalY + 10;
+            doc.setFontSize(8);
+            doc.setTextColor(100);
+            doc.text('Rating Formula: Rating = Sched + AGD', 14, finalY);
+            doc.text('AGD = Average Goal Differential (capped at ±7 per game, OT/SO games count as ±1)', 14, finalY + 5);
+            doc.text('Sched = Strength of Schedule (average rating of all opponents played)', 14, finalY + 10);
+            
+            // Save the PDF
+            const filename = `CSSHL_U17_Prep_Rankings_${new Date().toISOString().split('T')[0]}.pdf`;
+            doc.save(filename);
+        }
+        
         function calculateRankings() {
             const input = document.getElementById('dataInput').value;
             const errorEl = document.getElementById('errorMessage');
@@ -682,6 +799,30 @@
                     }
                     
                     const { results, iterations } = computeRankings(games);
+                    
+                    // Store data for PDF export
+                    currentRankingsData = {
+                        results: results.map(r => ({
+                            name: r.team.replace(' (U17 Prep)', ''),
+                            rating: r.rating,
+                            sched: r.sched,
+                            agd: r.agd,
+                            wins: r.wins,
+                            losses: r.losses,
+                            otLosses: r.otLosses,
+                            gf: r.gf,
+                            ga: r.ga,
+                            gp: r.gp
+                        })),
+                        stats: {
+                            totalGames: games.length,
+                            totalTeams: results.length,
+                            iterations: iterations
+                        }
+                    };
+                    
+                    // Show PDF button
+                    document.getElementById('pdfButton').style.display = 'inline-block';
                     
                     // Update stats
                     document.getElementById('totalGames').textContent = games.length;
@@ -728,6 +869,8 @@
             document.getElementById('dataInput').value = '';
             document.getElementById('results').classList.remove('visible');
             document.getElementById('errorMessage').classList.remove('visible');
+            document.getElementById('pdfButton').style.display = 'none';
+            currentRankingsData = null;
         }
         
         function loadSampleData() {
