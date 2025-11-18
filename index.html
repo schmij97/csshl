@@ -306,41 +306,6 @@
             </p>
         </div>
         
-        <details open style="margin-bottom: 20px; padding: 15px; background: #d4edda; border-left: 4px solid #28a745; border-radius: 4px;">
-            <summary style="cursor: pointer; font-weight: 600; color: #155724; font-size: 16px;">
-                🚀 Quick Start: Use the One-Click Bookmarklet
-            </summary>
-            <div style="margin-top: 15px; font-size: 14px; color: #155724;">
-                <p><strong>The fastest way to get rankings:</strong></p>
-                <ol style="margin-left: 20px; line-height: 2;">
-                    <li><strong>Drag this link to your bookmarks bar:</strong><br>
-                    <a href="javascript:(function(){const t=document.querySelector('table');if(!t){alert('No table found on this page');return;}const r=t.querySelectorAll('tbody tr');let c='Date\tTime\tVisiting\tGF\tHome\tGF\tVenue\n';r.forEach(e=>{const o=e.querySelectorAll('td');if(o.length>=7){const t=o[0].textContent.trim(),r=o[1].textContent.trim(),n=o[2].querySelector('a')?.textContent.trim()||o[2].textContent.trim(),i=o[3].textContent.trim(),s=o[5].querySelector('a')?.textContent.trim()||o[5].textContent.trim(),a=o[6].textContent.trim(),l=o.length>7?o[7].textContent.trim():'';r.includes('Final')&&(c+=`${t}\t${r}\t${n}\t${i}\t${s}\t${a}\t${l}\n`)}});navigator.clipboard.writeText(c).then(()=>{alert('✅ Game data copied to clipboard!\n\nNow paste it into the Rankings Calculator.')}).catch(()=>{const t=document.createElement('textarea');t.value=c,document.body.appendChild(t),t.select(),document.execCommand('copy'),document.body.removeChild(t),alert('✅ Game data copied to clipboard!\n\nNow paste it into the Rankings Calculator.')})})();" style="padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; margin: 10px 0; font-size: 15px;">📋 Copy CSSHL Games</a>
-                    <br><small style="color: #6c757d;">(Drag the green button above to your bookmarks toolbar)</small>
-                    </li>
-                    <li>Go to the <a href="https://u17prep.csshl.hockeytech.com/stats/schedule/all-teams/191/all-months?league=5" target="_blank" style="color: #007bff; font-weight: 600;">CSSHL schedule page</a></li>
-                    <li><strong>Click the bookmarklet</strong> you just added</li>
-                    <li>Come back here and <strong>paste</strong> (Ctrl+V or Cmd+V)</li>
-                    <li>Click <strong>"Calculate Rankings"</strong> below</li>
-                </ol>
-                <p style="margin-top: 15px; padding: 10px; background: #fff; border-radius: 4px;"><strong>⚡ That's it!</strong> The bookmarklet extracts all games and copies them to your clipboard in one click.</p>
-            </div>
-        </details>
-        
-        <details style="margin-bottom: 20px; padding: 15px; background: #e8f4f8; border-left: 4px solid #3498db; border-radius: 4px;">
-            <summary style="cursor: pointer; font-weight: 600; color: #2c3e50;">
-                📝 Alternative: Manual Copy/Paste
-            </summary>
-            <div style="margin-top: 15px; font-size: 14px; color: #2c3e50;">
-                <ol style="margin-left: 20px; line-height: 1.8;">
-                    <li>Open the <a href="https://u17prep.csshl.hockeytech.com/stats/schedule/all-teams/191/all-months?league=5" target="_blank" style="color: #3498db;">CSSHL schedule page</a></li>
-                    <li>Select the game table (click and drag to select all games)</li>
-                    <li>Copy (Ctrl+C or Cmd+C)</li>
-                    <li>Paste in the box below (Ctrl+V or Cmd+V)</li>
-                    <li>Click "Calculate Rankings"</li>
-                </ol>
-            </div>
-        </details>
-        
         <div class="input-section">
             <label for="dataInput">Paste Schedule/Results (CSV Format):</label>
             <textarea id="dataInput" placeholder="Paste your data here..."></textarea>
