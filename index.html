@@ -133,16 +133,6 @@
             background: #229954;
         }
         
-        .btn-fetch {
-            background: #9b59b6;
-            color: white;
-            padding: 12px 20px;
-        }
-        
-        .btn-fetch:hover {
-            background: #8e44ad;
-        }
-        
         .results-section {
             margin-top: 40px;
             display: none;
@@ -281,12 +271,38 @@
 <body>
     <div class="container">
         <h1>🏒 CSSHL U17 Prep Rankings Calculator</h1>
-        <p class="subtitle">Paste your schedule/results and get instant MYHockey-style rankings</p>
+        <p class="subtitle">Get instant MYHockey-style rankings in 3 simple steps</p>
         
-        <div style="margin-bottom: 20px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; color: white;">
-            <h3 style="margin: 0 0 10px 0; font-size: 18px;">⚡ NEW: One-Click Auto-Fetch!</h3>
-            <p style="margin: 0; font-size: 14px; opacity: 0.95;">
-                Click the <strong>"Auto-Fetch from CSSHL"</strong> button below to automatically grab all games from the CSSHL website and paste them here. No manual copying needed!
+        <div style="margin-bottom: 25px; padding: 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; color: white; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
+            <h3 style="margin: 0 0 15px 0; font-size: 20px;">⚡ Quick Start - 3 Easy Steps:</h3>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px;">
+                <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 6px; text-align: center;">
+                    <div style="font-size: 32px; margin-bottom: 8px;">1️⃣</div>
+                    <div style="font-size: 13px; line-height: 1.5;">
+                        <a href="https://u17prep.csshl.hockeytech.com/stats/schedule/all-teams/191/all-months?league=5" target="_blank" style="color: white; text-decoration: underline; font-weight: 600;">Open CSSHL page</a><br>
+                        Press <strong>Ctrl+A</strong>, then <strong>Ctrl+C</strong><br>
+                        <small style="opacity: 0.8;">(Cmd on Mac)</small>
+                    </div>
+                </div>
+                <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 6px; text-align: center;">
+                    <div style="font-size: 32px; margin-bottom: 8px;">2️⃣</div>
+                    <div style="font-size: 13px; line-height: 1.5;">
+                        Come back here<br>
+                        Click in text box below<br>
+                        Press <strong>Ctrl+V</strong> to paste
+                    </div>
+                </div>
+                <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 6px; text-align: center;">
+                    <div style="font-size: 32px; margin-bottom: 8px;">3️⃣</div>
+                    <div style="font-size: 13px; line-height: 1.5;">
+                        Click the blue<br>
+                        <strong>"Calculate Rankings"</strong><br>
+                        button below
+                    </div>
+                </div>
+            </div>
+            <p style="margin: 15px 0 0 0; font-size: 12px; opacity: 0.9; text-align: center;">
+                💡 The calculator automatically finds completed games and ignores everything else
             </p>
         </div>
         
@@ -338,7 +354,6 @@
             
             <div class="button-group">
                 <button class="btn-calculate" onclick="calculateRankings()">Calculate Rankings</button>
-                <button class="btn-fetch" onclick="autoFetchAndPaste()">Auto-Fetch from CSSHL</button>
                 <button class="btn-sample" onclick="loadSampleData()">Load Sample Data</button>
                 <button class="btn-clear" onclick="clearData()">Clear</button>
             </div>
@@ -668,73 +683,6 @@
                         1. Open <a href="${url}" target="_blank" style="color: #3498db; text-decoration: underline;">this link</a><br>
                         2. Select the entire game table and copy (Ctrl+C)<br>
                         3. Paste here (Ctrl+V)
-                    `;
-                    errorEl.classList.add('visible');
-                });
-        }
-        
-        function autoFetchAndPaste() {
-            const errorEl = document.getElementById('errorMessage');
-            const loadingEl = document.getElementById('loading');
-            const dataInput = document.getElementById('dataInput');
-            
-            errorEl.classList.remove('visible');
-            loadingEl.textContent = '🌐 Fetching games from CSSHL website...';
-            loadingEl.classList.add('visible');
-            
-            const url = 'https://u17prep.csshl.hockeytech.com/stats/schedule/all-teams/191/all-months?league=5';
-            
-            // Use a CORS proxy to fetch the page
-            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-            
-            fetch(proxyUrl)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Failed to fetch: ${response.status}`);
-                    }
-                    return response.text();
-                })
-                .then(html => {
-                    loadingEl.classList.remove('visible');
-                    
-                    // Parse the HTML to extract text
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    
-                    // Get all the text content (simulates Ctrl+A, Ctrl+C)
-                    const allText = doc.body.innerText || doc.body.textContent;
-                    
-                    // Paste it into the textarea
-                    dataInput.value = allText;
-                    
-                    // Show success message
-                    const successDiv = document.createElement('div');
-                    successDiv.className = 'format-hint';
-                    successDiv.style.background = '#d4edda';
-                    successDiv.style.borderColor = '#28a745';
-                    successDiv.style.marginTop = '10px';
-                    successDiv.innerHTML = '✅ <strong>Data fetched and pasted!</strong> Now click "Calculate Rankings" to see results.';
-                    
-                    const existingSuccess = document.querySelector('.format-hint[style*="d4edda"]');
-                    if (existingSuccess) {
-                        existingSuccess.remove();
-                    }
-                    document.querySelector('.input-section').appendChild(successDiv);
-                    
-                    setTimeout(() => successDiv.remove(), 5000);
-                })
-                .catch(error => {
-                    loadingEl.classList.remove('visible');
-                    
-                    errorEl.innerHTML = `
-                        <strong>⚠️ Auto-fetch failed</strong><br><br>
-                        <strong>Error:</strong> ${error.message}<br><br>
-                        <strong>Manual method (always works):</strong><br>
-                        1. Go to <a href="${url}" target="_blank" style="color: #3498db;">the CSSHL page</a><br>
-                        2. Press Ctrl+A (or Cmd+A)<br>
-                        3. Press Ctrl+C (or Cmd+C)<br>
-                        4. Come back here and press Ctrl+V<br>
-                        5. Click "Calculate Rankings"
                     `;
                     errorEl.classList.add('visible');
                 });
