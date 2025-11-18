@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSSHL U17 Prep Rankings Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .input-section {
+            margin-bottom: 30px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .format-hint {
+            margin-top: 8px;
+            padding: 12px;
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2c3e50;
+        }
+        
+        .format-hint code {
+            background: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #e74c3c;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-calculate {
+            background: #3498db;
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-calculate:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+        
+        .btn-clear {
+            background: #95a5a6;
+            color: white;
+            padding: 12px 20px;
+        }
+        
+        .btn-clear:hover {
+            background: #7f8c8d;
+        }
+        
+        .btn-sample {
+            background: #27ae60;
+            color: white;
+            padding: 12px 20px;
+        }
+        
+        .btn-sample:hover {
+            background: #229954;
+        }
+        
+        .btn-fetch {
+            background: #9b59b6;
+            color: white;
+            padding: 12px 20px;
+        }
+        
+        .btn-fetch:hover {
+            background: #8e44ad;
+        }
+        
+        .results-section {
+            margin-top: 40px;
+            display: none;
+        }
+        
+        .results-section.visible {
+            display: block;
+        }
+        
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #ecf0f1;
+            border-radius: 6px;
+        }
+        
+        .stat {
+            flex: 1;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-top: 5px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        th {
+            background: #34495e;
+            color: white;
+            padding: 14px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        th.text-right, td.text-right {
+            text-align: right;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 14px;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .rank-cell {
+            font-weight: 700;
+            color: #3498db;
+        }
+        
+        .positive {
+            color: #27ae60;
+        }
+        
+        .negative {
+            color: #e74c3c;
+        }
+        
+        .error {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fadbd8;
+            border-left: 4px solid #e74c3c;
+            border-radius: 4px;
+            color: #c0392b;
+            display: none;
+        }
+        
+        .error.visible {
+            display: block;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+            display: none;
+        }
+        
+        .loading.visible {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .stats-bar {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏒 CSSHL U17 Prep Rankings Calculator</h1>
+        <p class="subtitle">Paste your schedule/results and get instant MYHockey-style rankings</p>
+        
+        <details open style="margin-bottom: 20px; padding: 15px; background: #d4edda; border-left: 4px solid #28a745; border-radius: 4px;">
+            <summary style="cursor: pointer; font-weight: 600; color: #155724; font-size: 16px;">
+                🚀 Quick Start: Use the One-Click Bookmarklet
+            </summary>
+            <div style="margin-top: 15px; font-size: 14px; color: #155724;">
+                <p><strong>The fastest way to get rankings:</strong></p>
+                <ol style="margin-left: 20px; line-height: 2;">
+                    <li><strong>Drag this link to your bookmarks bar:</strong><br>
+                    <a href="javascript:(function(){const t=document.querySelector('table');if(!t){alert('No table found on this page');return;}const r=t.querySelectorAll('tbody tr');let c='Date\tTime\tVisiting\tGF\tHome\tGF\tVenue\n';r.forEach(e=>{const o=e.querySelectorAll('td');if(o.length>=7){const t=o[0].textContent.trim(),r=o[1].textContent.trim(),n=o[2].querySelector('a')?.textContent.trim()||o[2].textContent.trim(),i=o[3].textContent.trim(),s=o[5].querySelector('a')?.textContent.trim()||o[5].textContent.trim(),a=o[6].textContent.trim(),l=o.length>7?o[7].textContent.trim():'';r.includes('Final')&&(c+=`${t}\t${r}\t${n}\t${i}\t${s}\t${a}\t${l}\n`)}});navigator.clipboard.writeText(c).then(()=>{alert('✅ Game data copied to clipboard!\n\nNow paste it into the Rankings Calculator.')}).catch(()=>{const t=document.createElement('textarea');t.value=c,document.body.appendChild(t),t.select(),document.execCommand('copy'),document.body.removeChild(t),alert('✅ Game data copied to clipboard!\n\nNow paste it into the Rankings Calculator.')})})();" style="padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; margin: 10px 0; font-size: 15px;">📋 Copy CSSHL Games</a>
+                    <br><small style="color: #6c757d;">(Drag the green button above to your bookmarks toolbar)</small>
+                    </li>
+                    <li>Go to the <a href="https://u17prep.csshl.hockeytech.com/stats/schedule/all-teams/191/all-months?league=5" target="_blank" style="color: #007bff; font-weight: 600;">CSSHL schedule page</a></li>
+                    <li><strong>Click the bookmarklet</strong> you just added</li>
+                    <li>Come back here and <strong>paste</strong> (Ctrl+V or Cmd+V)</li>
+                    <li>Click <strong>"Calculate Rankings"</strong> below</li>
+                </ol>
+                <p style="margin-top: 15px; padding: 10px; background: #fff; border-radius: 4px;"><strong>⚡ That's it!</strong> The bookmarklet extracts all games and copies them to your clipboard in one click.</p>
+            </div>
+        </details>
+        
+        <details style="margin-bottom: 20px; padding: 15px; background: #e8f4f8; border-left: 4px solid #3498db; border-radius: 4px;">
+            <summary style="cursor: pointer; font-weight: 600; color: #2c3e50;">
+                📝 Alternative: Manual Copy/Paste
+            </summary>
+            <div style="margin-top: 15px; font-size: 14px; color: #2c3e50;">
+                <ol style="margin-left: 20px; line-height: 1.8;">
+                    <li>Open the <a href="https://u17prep.csshl.hockeytech.com/stats/schedule/all-teams/191/all-months?league=5" target="_blank" style="color: #3498db;">CSSHL schedule page</a></li>
+                    <li>Select the game table (click and drag to select all games)</li>
+                    <li>Copy (Ctrl+C or Cmd+C)</li>
+                    <li>Paste in the box below (Ctrl+V or Cmd+V)</li>
+                    <li>Click "Calculate Rankings"</li>
+                </ol>
+            </div>
+        </details>
+        
+        <div class="input-section">
+            <label for="dataInput">Paste Schedule/Results (CSV Format):</label>
+            <textarea id="dataInput" placeholder="Paste your data here..."></textarea>
+            
+            <div class="format-hint">
+                <strong>📋 Supported Formats:</strong><br>
+                ✅ <strong>Copy directly from Excel</strong> (just select and copy, paste here)<br>
+                ✅ CSV format: <code>Date,Time,Visiting,GF,Home,GF,Venue</code><br>
+                Example: <code>Fri, Sep 26&nbsp;&nbsp;Final&nbsp;&nbsp;Team A&nbsp;&nbsp;4&nbsp;&nbsp;Team B&nbsp;&nbsp;3&nbsp;&nbsp;Arena</code>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn-calculate" onclick="calculateRankings()">Calculate Rankings</button>
+                <button class="btn-sample" onclick="loadSampleData()">Load Sample Data</button>
+                <button class="btn-clear" onclick="clearData()">Clear</button>
+            </div>
+        </div>
+        
+        <div class="error" id="errorMessage"></div>
+        <div class="loading" id="loading">⚙️ Calculating rankings...</div>
+        
+        <div class="results-section" id="results">
+            <h2>📊 Rankings</h2>
+            <div class="stats-bar">
+                <div class="stat">
+                    <div class="stat-label">Total Games</div>
+                    <div class="stat-value" id="totalGames">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Teams</div>
+                    <div class="stat-value" id="totalTeams">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Iterations</div>
+                    <div class="stat-value" id="iterations">0</div>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table id="rankingsTable">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Team</th>
+                            <th class="text-right">GP</th>
+                            <th class="text-right">Rating</th>
+                            <th class="text-right">AGD</th>
+                            <th class="text-right">Sched</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rankingsBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function parseCSV(text) {
+            const lines = text.trim().split('\n');
+            const games = [];
+            
+            // Detect delimiter (tab or comma)
+            let delimiter = ',';
+            if (lines[0] && lines[0].includes('\t')) {
+                delimiter = '\t';
+            }
+            
+            // Skip header if present
+            let startIndex = 0;
+            if (lines[0].toLowerCase().includes('date') || lines[0].toLowerCase().includes('time')) {
+                startIndex = 1;
+            }
+            
+            for (let i = startIndex; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                let fields = [];
+                
+                if (delimiter === '\t') {
+                    // Tab-separated (from Excel)
+                    fields = line.split('\t').map(f => f.trim());
+                } else {
+                    // Comma-separated (handle quoted fields)
+                    let current = '';
+                    let inQuotes = false;
+                    
+                    for (let char of line) {
+                        if (char === '"') {
+                            inQuotes = !inQuotes;
+                        } else if (char === ',' && !inQuotes) {
+                            fields.push(current.trim());
+                            current = '';
+                        } else {
+                            current += char;
+                        }
+                    }
+                    fields.push(current.trim());
+                }
+                
+                // Need at least 6 fields: Date, Time, Visiting, GF, Home, GF
+                if (fields.length < 6) continue;
+                
+                const status = fields[1] || '';
+                if (!status.toLowerCase().includes('final')) continue;
+                
+                try {
+                    const visitor = fields[2];
+                    const visitorScore = parseInt(fields[3]);
+                    const home = fields[4];
+                    const homeScore = parseInt(fields[5]);
+                    const overtime = status.toUpperCase().includes('OT') || status.toUpperCase().includes('SO');
+                    
+                    if (visitor && home && !isNaN(visitorScore) && !isNaN(homeScore)) {
+                        games.push({
+                            visitor,
+                            home,
+                            gf_v: visitorScore,
+                            gf_h: homeScore,
+                            overtime
+                        });
+                    }
+                } catch (e) {
+                    console.warn('Could not parse line:', line);
+                }
+            }
+            
+            return games;
+        }
+        
+        function computeRankings(games) {
+            const allTeams = new Set();
+            games.forEach(g => {
+                allTeams.add(g.visitor);
+                allTeams.add(g.home);
+            });
+            
+            const teams = Array.from(allTeams).sort();
+            const teamMargins = {};
+            const opponents = {};
+            
+            teams.forEach(t => {
+                teamMargins[t] = [];
+                opponents[t] = [];
+            });
+            
+            // Calculate margins and track opponents
+            games.forEach(g => {
+                const v = g.visitor;
+                const h = g.home;
+                const gv = g.gf_v;
+                const gh = g.gf_h;
+                
+                let marginV, marginH;
+                
+                if (g.overtime) {
+                    // OT/SO games: winner gets +1, loser gets -1
+                    if (gv > gh) {
+                        marginV = 1;
+                        marginH = -1;
+                    } else {
+                        marginV = -1;
+                        marginH = 1;
+                    }
+                } else {
+                    const diff = gv - gh;
+                    marginV = Math.max(-7, Math.min(7, diff));
+                    marginH = -marginV;
+                }
+                
+                teamMargins[v].push(marginV);
+                teamMargins[h].push(marginH);
+                opponents[v].push(h);
+                opponents[h].push(v);
+            });
+            
+            // Iterative calculation
+            let ratings = {};
+            teams.forEach(t => ratings[t] = 95.32);
+            
+            let iteration = 0;
+            const maxIterations = 1000;
+            const convergenceThreshold = 0.0000001;
+            
+            for (iteration = 0; iteration < maxIterations; iteration++) {
+                const newRatings = {};
+                
+                teams.forEach(t => {
+                    const gp = teamMargins[t].length;
+                    if (gp === 0) {
+                        newRatings[t] = 95.32;
+                        return;
+                    }
+                    
+                    const agd = teamMargins[t].reduce((a, b) => a + b, 0) / gp;
+                    const oppRatings = opponents[t].map(opp => ratings[opp]);
+                    const sched = oppRatings.reduce((a, b) => a + b, 0) / oppRatings.length;
+                    newRatings[t] = sched + agd;
+                });
+                
+                // Check convergence
+                let maxChange = 0;
+                teams.forEach(t => {
+                    maxChange = Math.max(maxChange, Math.abs(newRatings[t] - ratings[t]));
+                });
+                
+                ratings = newRatings;
+                
+                if (maxChange < convergenceThreshold) {
+                    break;
+                }
+            }
+            
+            // Build results
+            const results = [];
+            teams.forEach(t => {
+                const gp = teamMargins[t].length;
+                const agd = gp > 0 ? teamMargins[t].reduce((a, b) => a + b, 0) / gp : 0;
+                const rating = ratings[t];
+                const sched = rating - agd;
+                
+                results.push({
+                    team: t,
+                    gp: gp,
+                    rating: rating,
+                    agd: agd,
+                    sched: sched
+                });
+            });
+            
+            results.sort((a, b) => b.rating - a.rating);
+            
+            return { results, iterations: iteration + 1 };
+        }
+        
+        function fetchFromWebsite() {
+            const errorEl = document.getElementById('errorMessage');
+            const loadingEl = document.getElementById('loading');
+            
+            errorEl.classList.remove('visible');
+            loadingEl.textContent = '🌐 Fetching data from CSSHL website (2-5 seconds)...';
+            loadingEl.classList.add('visible');
+            
+            const apiEndpoint = '/.netlify/functions/fetch-csshl-scraper';
+            
+            fetch(apiEndpoint)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Server error: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error + (data.tip ? ' - ' + data.tip : ''));
+                    }
+                    
+                    loadingEl.classList.remove('visible');
+                    
+                    if (!data.games || data.games.length === 0) {
+                        throw new Error('No completed games found');
+                    }
+                    
+                    console.log('Games received:', data.games.length);
+                    
+                    // Convert JSON data to TSV format
+                    let csvData = 'Date\tTime\tVisiting\tGF\tHome\tGF\tVenue\n';
+                    data.games.forEach(game => {
+                        csvData += `${game.date}\t${game.status}\t${game.visitor}\t${game.vScore}\t${game.home}\t${game.hScore}\t${game.venue}\n`;
+                    });
+                    
+                    document.getElementById('dataInput').value = csvData;
+                    
+                    // Show success message
+                    const successDiv = document.createElement('div');
+                    successDiv.className = 'format-hint';
+                    successDiv.style.background = '#d4edda';
+                    successDiv.style.borderColor = '#28a745';
+                    successDiv.style.marginTop = '10px';
+                    successDiv.innerHTML = `✅ <strong>Data fetched successfully!</strong> Found ${data.games.length} completed games. Click "Calculate Rankings" to see results.`;
+                    
+                    const existingSuccess = document.querySelector('.format-hint[style*="d4edda"]');
+                    if (existingSuccess) {
+                        existingSuccess.remove();
+                    }
+                    document.querySelector('.input-section').appendChild(successDiv);
+                    
+                    setTimeout(() => successDiv.remove(), 5000);
+                })
+                .catch(error => {
+                    loadingEl.classList.remove('visible');
+                    
+                    const url = 'https://u17prep.csshl.hockeytech.com/stats/schedule/all-teams/191/all-months?league=5';
+                    
+                    // Check if it's an API key error
+                    const isApiKeyError = error.message.includes('SCRAPER_API_KEY') || error.message.includes('not configured');
+                    
+                    errorEl.innerHTML = `
+                        <strong>⚠️ Could not fetch data automatically</strong><br><br>
+                        <strong>Error:</strong> ${error.message}<br><br>
+                        ${isApiKeyError ? `
+                        <strong>Setup Required:</strong><br>
+                        The automatic fetch uses ScraperAPI (free tier: 1,000 requests/month).<br>
+                        <strong>To enable:</strong><br>
+                        1. Sign up at <a href="https://www.scraperapi.com" target="_blank" style="color: #3498db;">scraperapi.com</a> (free)<br>
+                        2. Get your API key<br>
+                        3. Add to Netlify: Site Settings → Environment Variables<br>
+                        4. Name: <code>SCRAPER_API_KEY</code>, Value: your API key<br><br>
+                        ` : ''}
+                        <strong>Meanwhile, use the Bookmarklet (easiest method):</strong><br>
+                        1. Drag the "📋 Copy CSSHL Games" link (yellow box above) to your bookmarks bar<br>
+                        2. Go to <a href="${url}" target="_blank" style="color: #3498db; text-decoration: underline;">the CSSHL page</a><br>
+                        3. Click the bookmarklet in your bookmarks<br>
+                        4. Come back here and paste (Ctrl+V)<br><br>
+                        <strong>Or manually copy/paste:</strong><br>
+                        1. Open <a href="${url}" target="_blank" style="color: #3498db; text-decoration: underline;">this link</a><br>
+                        2. Select the entire game table and copy (Ctrl+C)<br>
+                        3. Paste here (Ctrl+V)
+                    `;
+                    errorEl.classList.add('visible');
+                });
+        }
+        
+        function calculateRankings() {
+            const input = document.getElementById('dataInput').value;
+            const errorEl = document.getElementById('errorMessage');
+            const loadingEl = document.getElementById('loading');
+            const resultsEl = document.getElementById('results');
+            
+            // Hide previous results/errors
+            errorEl.classList.remove('visible');
+            resultsEl.classList.remove('visible');
+            
+            if (!input.trim()) {
+                errorEl.textContent = 'Please paste some data first!';
+                errorEl.classList.add('visible');
+                return;
+            }
+            
+            // Show loading
+            loadingEl.classList.add('visible');
+            
+            // Use setTimeout to allow UI to update
+            setTimeout(() => {
+                try {
+                    const games = parseCSV(input);
+                    
+                    if (games.length === 0) {
+                        throw new Error('No valid games found. Make sure your data includes completed games with "Final" status.');
+                    }
+                    
+                    const { results, iterations } = computeRankings(games);
+                    
+                    // Update stats
+                    document.getElementById('totalGames').textContent = games.length;
+                    document.getElementById('totalTeams').textContent = results.length;
+                    document.getElementById('iterations').textContent = iterations;
+                    
+                    // Build table
+                    const tbody = document.getElementById('rankingsBody');
+                    tbody.innerHTML = '';
+                    
+                    results.forEach((r, index) => {
+                        const row = document.createElement('tr');
+                        const teamName = r.team.replace(' (U17 Prep)', '');
+                        const agdClass = r.agd > 0 ? 'positive' : (r.agd < 0 ? 'negative' : '');
+                        const agdSign = r.agd > 0 ? '+' : '';
+                        
+                        row.innerHTML = `
+                            <td class="rank-cell">${index + 1}</td>
+                            <td>${teamName}</td>
+                            <td class="text-right">${r.gp}</td>
+                            <td class="text-right"><strong>${r.rating.toFixed(2)}</strong></td>
+                            <td class="text-right ${agdClass}">${agdSign}${r.agd.toFixed(2)}</td>
+                            <td class="text-right">${r.sched.toFixed(2)}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                    
+                    // Show results
+                    loadingEl.classList.remove('visible');
+                    resultsEl.classList.add('visible');
+                    
+                    // Scroll to results
+                    resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    
+                } catch (error) {
+                    loadingEl.classList.remove('visible');
+                    errorEl.textContent = '❌ Error: ' + error.message;
+                    errorEl.classList.add('visible');
+                }
+            }, 100);
+        }
+        
+        function clearData() {
+            document.getElementById('dataInput').value = '';
+            document.getElementById('results').classList.remove('visible');
+            document.getElementById('errorMessage').classList.remove('visible');
+        }
+        
+        function loadSampleData() {
+            const sampleData = `Date	Time	Visiting	GF	Home	GF	Venue
+Fri, Sep 26	Final	Wenatchee Wild Hockey Academy (U17 Prep)	4	Shawnigan Lake School (U17 Prep)	6	Charlie Purdey Arena
+Fri, Sep 26	Final	Prairie Hockey Academy (U17 Prep)	8	Notre Dame Hounds (U17 Prep)	0	Duncan McNeill Arena
+Sat, Sep 27	Final	Wenatchee Wild Hockey Academy (U17 Prep)	3	Pacific Coast Hockey Academy (U17 Prep)	5	Charlie Purdey Arena
+Sat, Sep 27	Final	North Shore Warriors (U17 Prep)	2	Yale Hockey Academy (U17 Prep)	4	Summit Centre - East
+Sun, Sep 28	Final	Shawnigan Lake School (U17 Prep)	6	Yale Hockey Academy (U17 Prep)	2	Charlie Purdey Arena
+Tue, Sep 30	Final	Delta Hockey Academy (U17 Prep)	6	St. George's School (U17 Prep)	1	UBC Father David Bauer Arena
+Wed, Oct 1	Final	Notre Dame Hounds (U17 Prep)	1	Prairie Hockey Academy (U17 Prep)	5	Barkman Arena
+Fri, Oct 3	Final	St. George's School (U17 Prep)	6	North Shore Warriors (U17 Prep)	2	North Shore Winter Club
+Fri, Oct 3	Final	Indigenous Sports Academy (U17 Prep)	0	Edge School (U17 Prep)	6	Edge School - Kyle Stuart Memorial
+Fri, Oct 3	Final SO	Pilot Mound Hockey Academy (U17 Prep)	4	Notre Dame Hounds (U17 Prep)	3	Duncan McNeill Arena`;
+            
+            document.getElementById('dataInput').value = sampleData;
+        }
+        
+        // Allow Enter key to calculate
+        document.getElementById('dataInput').addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                calculateRankings();
+            }
+        });
+    </script>
+</body>
+</html>
