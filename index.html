@@ -380,26 +380,22 @@
             const lines = text.trim().split('\n');
             const games = [];
             
+            console.log('Total lines received:', lines.length);
+            
             // Detect delimiter (tab or comma)
             let delimiter = ',';
-            if (lines[0] && lines[0].includes('\t')) {
+            if (lines.some(line => line.includes('\t'))) {
                 delimiter = '\t';
             }
             
-            // Skip header if present
-            let startIndex = 0;
-            if (lines[0].toLowerCase().includes('date') || lines[0].toLowerCase().includes('time')) {
-                startIndex = 1;
-            }
-            
-            for (let i = startIndex; i < lines.length; i++) {
+            for (let i = 0; i < lines.length; i++) {
                 const line = lines[i].trim();
                 if (!line) continue;
                 
                 let fields = [];
                 
                 if (delimiter === '\t') {
-                    // Tab-separated (from Excel)
+                    // Tab-separated (from Excel or direct copy)
                     fields = line.split('\t').map(f => f.trim());
                 } else {
                     // Comma-separated (handle quoted fields)
@@ -419,33 +415,60 @@
                     fields.push(current.trim());
                 }
                 
-                // Need at least 6 fields: Date, Time, Visiting, GF, Home, GF
+                // Need at least 6 fields: Date, Time/Status, Visiting, GF, Home, GF
                 if (fields.length < 6) continue;
                 
-                const status = fields[1] || '';
-                if (!status.toLowerCase().includes('final')) continue;
+                // Check if this looks like a game row
+                // Must have "Final" in status field (usually field[1])
+                const statusField = fields[1] || '';
+                if (!statusField.toLowerCase().includes('final')) continue;
+                
+                // Skip if it looks like a header row
+                if (fields[0].toLowerCase().includes('date')) continue;
+                if (fields[2].toLowerCase().includes('visiting')) continue;
                 
                 try {
+                    const date = fields[0];
+                    const status = fields[1];
                     const visitor = fields[2];
-                    const visitorScore = parseInt(fields[3]);
+                    const visitorScore = fields[3];
                     const home = fields[4];
-                    const homeScore = parseInt(fields[5]);
+                    const homeScore = fields[5];
+                    
+                    // Parse scores - must be valid numbers
+                    const gf_v = parseInt(visitorScore);
+                    const gf_h = parseInt(homeScore);
+                    
+                    // Skip if scores aren't numbers (future games have "-")
+                    if (isNaN(gf_v) || isNaN(gf_h)) continue;
+                    
+                    // Check for overtime/shootout
                     const overtime = status.toUpperCase().includes('OT') || status.toUpperCase().includes('SO');
                     
-                    if (visitor && home && !isNaN(visitorScore) && !isNaN(homeScore)) {
-                        games.push({
-                            visitor,
-                            home,
-                            gf_v: visitorScore,
-                            gf_h: homeScore,
-                            overtime
-                        });
-                    }
+                    // Validate team names aren't empty
+                    if (!visitor || !home) continue;
+                    
+                    // Make sure team names look reasonable (not navigation text, etc.)
+                    if (visitor.length < 3 || home.length < 3) continue;
+                    if (visitor.toLowerCase().includes('http')) continue;
+                    if (home.toLowerCase().includes('http')) continue;
+                    
+                    games.push({
+                        visitor,
+                        home,
+                        gf_v,
+                        gf_h,
+                        overtime
+                    });
+                    
+                    console.log(`Parsed game: ${visitor} ${gf_v} @ ${home} ${gf_h}${overtime ? ' (OT/SO)' : ''}`);
                 } catch (e) {
-                    console.warn('Could not parse line:', line);
+                    // Silently skip unparseable lines
+                    continue;
                 }
             }
             
+            console.log(`Total games parsed: ${games.length}`);
             return games;
         }
         
